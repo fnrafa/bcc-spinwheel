@@ -19,27 +19,28 @@ const ItemList: React.FC = () => {
     };
 
     const handleEditItemName = (id: number, newLabel: string) => {
-        setItems((prev) => prev.map((item) => (item.id === id ? {...item, label: newLabel} : item)));
+        setItems((prev) =>
+            prev.map((item) => (item.id === id ? {...item, label: newLabel} : item))
+        );
     };
 
     const handleToggleActive = (id: number) => {
         setItems((prev) =>
-            prev.map((item) => (item.id === id ? {
-                ...item,
-                active: !item.active,
-                pinned: item.active ? false : item.pinned
-            } : item))
+            prev.map((item) =>
+                item.id === id
+                    ? {...item, active: !item.active, pinned: item.active ? false : item.pinned}
+                    : item
+            )
         );
     };
 
     const handleTogglePin = (id: number) => {
         setItems((prev) => {
-            const updatedItems = prev.map((item) => (item.id === id ? {...item, pinned: !item.pinned} : item));
-
+            const updatedItems = prev.map((item) =>
+                item.id === id ? {...item, pinned: !item.pinned} : item
+            );
             updatedItems.sort((a, b) => Number(b.pinned) - Number(a.pinned));
-
             setCheatItemId(updatedItems.length > 0 && updatedItems[0].pinned ? updatedItems[0].id : null);
-
             return updatedItems;
         });
     };
@@ -51,10 +52,8 @@ const ItemList: React.FC = () => {
     const handleDragEnd = (event: any) => {
         const {active, over} = event;
         if (!over || active.id === over.id) return;
-
         const oldIndex = items.findIndex((item) => item.id === active.id);
         const newIndex = items.findIndex((item) => item.id === over.id);
-
         setItems((prev) => arrayMove(prev, oldIndex, newIndex));
     };
 

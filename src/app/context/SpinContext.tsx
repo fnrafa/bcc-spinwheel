@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext, useState, useContext } from "react";
+import React, { createContext, useState, useContext, useEffect } from "react";
 
 interface WheelItem {
     id: number;
@@ -17,19 +17,47 @@ interface SpinContextProps {
     setCheatItemId: React.Dispatch<React.SetStateAction<number | null>>;
     removeAfterSelect: boolean;
     setRemoveAfterSelect: React.Dispatch<React.SetStateAction<boolean>>;
+    saveChanges: () => Promise<void>;
 }
 
 const SpinContext = createContext<SpinContextProps | undefined>(undefined);
 
 export const SpinContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [title, setTitle] = useState("Final Pitching BCC 2025");
-    const [items, setItems] = useState<WheelItem[]>([
-        { id: 1, label: "Kelompok 1", active: true, pinned: true },
-        { id: 2, label: "Kelompok 2", active: true, pinned: false },
-        { id: 3, label: "Kelompok 3", active: true, pinned: false },
-    ]);
+    const [items, setItems] = useState<WheelItem[]>([]);
     const [cheatItemId, setCheatItemId] = useState<number | null>(1);
     const [removeAfterSelect, setRemoveAfterSelect] = useState<boolean>(false);
+
+    useEffect(() => {
+        async function fetchItems() {
+            try {
+                const res = await fetch("/api/loadItems");
+                if (res.ok) {
+                    const data = await res.json();
+                    setTitle(data.title);
+                    setItems(data.items);
+                }
+            } catch (error) {
+                console.error("Error loading items:", error);
+            }
+        }
+        fetchItems().then();
+    }, []);
+
+    const saveChanges = async () => {
+        try {
+            const res = await fetch("/api/saveItems", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ title, items }),
+            });
+            if (!res.ok) {
+                console.error("Failed to save items");
+            }
+        } catch (error) {
+            console.error("Error saving items:", error);
+        }
+    };
 
     return (
         <SpinContext.Provider
@@ -42,6 +70,7 @@ export const SpinContextProvider: React.FC<{ children: React.ReactNode }> = ({ c
                 setCheatItemId,
                 removeAfterSelect,
                 setRemoveAfterSelect,
+                saveChanges
             }}
         >
             {children}

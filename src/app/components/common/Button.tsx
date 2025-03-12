@@ -7,6 +7,7 @@ interface ButtonProps {
     size?: "small" | "large";
     onClick?: () => void;
     fullWidth?: boolean;
+    className?: string;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -16,6 +17,7 @@ const Button: React.FC<ButtonProps> = ({
                                            size = "large",
                                            onClick,
                                            fullWidth = false,
+                                           className
                                        }) => {
     return (
         <button
@@ -24,7 +26,7 @@ const Button: React.FC<ButtonProps> = ({
                 ${variant === "filled"
                 ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white shadow-md hover:brightness-110"
                 : "border-2 border-orange-400 text-orange-400 hover:bg-orange-400 hover:text-white"}
-                ${fullWidth ? "w-full" : "w-fit"}
+                ${fullWidth ? "w-full" : "w-fit"} ${className}
                 ${size === "small" ? "px-3 py-1 text-xs md:px-4 md:py-2 md:text-sm" : "px-4 py-2 text-sm md:text-base"}
             `}
         >

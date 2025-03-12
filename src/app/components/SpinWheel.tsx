@@ -23,7 +23,8 @@ const SpinWheel: React.FC = () => {
             let oldRotation = 0;
 
             const orangeColors = ["#fb923c", "#ea580c"];
-            const data = items;
+            const data = items.filter(item => item.active);
+            if (data.length === 0) return;
 
             const svg = d3
                 .select(chartRef.current)
@@ -46,13 +47,15 @@ const SpinWheel: React.FC = () => {
                 .append("g")
                 .attr("class", "slice");
 
-            arcs.append("path")
+            arcs
+                .append("path")
                 .attr("d", arc)
                 .attr("fill", (d, i) => orangeColors[i % 2])
                 .style("stroke", "#fff")
                 .style("stroke-width", "2px");
 
-            arcs.append("text")
+            arcs
+                .append("text")
                 .attr("transform", function (d) {
                     d.innerRadius = 0;
                     d.outerRadius = r;
@@ -90,12 +93,19 @@ const SpinWheel: React.FC = () => {
                         return (t) => "rotate(" + i(t) + ")";
                     })
                     .each("end", function () {
+                        // Ganti warna slice yang terpilih
                         d3.select(`.slice:nth-child(${finalIndex + 1}) path`).attr("fill", "#008DD5");
                         setSelectedItem(data[finalIndex].label);
                         oldRotation = rotation;
-                        if (removeAfterSelect) {
-                            setItems((prev) => prev.filter((item) => item.id !== data[finalIndex].id));
-                        }
+                        // Update item: setelah dipilih, jadikan inactive dan hapus status pin (jika ada)
+                        setItems(prev =>
+                            prev.map(item => {
+                                if (item.id === data[finalIndex].id) {
+                                    return { ...item, active: false, pinned: false };
+                                }
+                                return item;
+                            })
+                        );
                     });
             };
         };
@@ -124,15 +134,15 @@ const SpinWheel: React.FC = () => {
                         }}
                     />
                 </div>
-
                 <div ref={chartRef} className="flex items-center justify-center w-full h-auto" />
                 <div
-                    className="absolute flex items-center justify-center w-[20vw] h-[20vw] max-w-50 max-h-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                    className="absolute flex items-center justify-center w-[20vw] h-[20vw] max-w-50 max-h-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                >
                     <button
                         onClick={() => spinFnRef.current()}
-                        disabled={items.length <= 1}
+                        disabled={items.filter(item => item.active).length <= 1}
                         className={`w-full h-full md:px-16 rounded-full border-8 border-white bg-white flex items-center justify-center transition-transform duration-150 focus:outline-none 
-                            ${items.length <= 1 ? "opacity-50 cursor-not-allowed" : ""}`}
+              ${items.filter(item => item.active).length <= 1 ? "opacity-50 cursor-not-allowed" : ""}`}
                         onMouseDown={(e) => (e.currentTarget as HTMLButtonElement).classList.add("scale-90")}
                         onMouseUp={(e) => (e.currentTarget as HTMLButtonElement).classList.remove("scale-90")}
                     >

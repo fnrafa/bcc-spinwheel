@@ -1,4 +1,5 @@
 "use client";
+
 import React, {useState} from "react";
 import Background from "@/components/layout/Background";
 import {useSpinContext} from "@/context/SpinContext";
@@ -10,27 +11,17 @@ import {LuTrash} from "react-icons/lu";
 import Button from "@/components/common/Button";
 
 export default function AdminPage() {
-    const {title, setTitle, setItems} = useSpinContext();
-
-    const [editedItems, setEditedItems] = useState<any[]>([]);
-
+    const {title, setTitle, setItems, saveChanges} = useSpinContext();
+    const [unsaved, setUnsaved] = useState(false);
 
     const handleActivateAll = () => {
-        setItems((prev) => prev.map((item) => ({...item, active: true})));
+        setItems(prev => prev.map(item => ({...item, active: true})));
+        setUnsaved(true);
     };
 
     const handleRemoveAll = () => {
         setItems([]);
-    };
-
-    const handleSaveChanges = () => {
-        editedItems.forEach(item => {
-            setItems(prev => prev.map(prevItem => prevItem.id === item.id ? {
-                ...prevItem,
-                label: item.label
-            } : prevItem));
-        });
-        setEditedItems([]);
+        setUnsaved(true);
     };
 
     return (
@@ -44,11 +35,15 @@ export default function AdminPage() {
                             <input
                                 type="text"
                                 value={title}
-                                onChange={(e) => setTitle(e.target.value)}
+                                onChange={(e) => {
+                                    setTitle(e.target.value);
+                                    setUnsaved(true);
+                                }}
                                 className="border p-2 w-full rounded-lg"
                             />
                         </div>
                         <div className="flex flex-col flex-grow overflow-y-auto">
+                            <label className="block mb-1 font-semibold text-gray-800">List Item:</label>
                             <ItemList/>
                         </div>
                         <div className="flex flex-col gap-2 mt-4">
@@ -72,7 +67,11 @@ export default function AdminPage() {
                                 <Button
                                     fullWidth={true}
                                     text="Simpan Perubahan"
-                                    onClick={handleSaveChanges}
+                                    onClick={async () => {
+                                        await saveChanges();
+                                        setUnsaved(false);
+                                    }}
+                                    className={`${unsaved ? "border-2 border-yellow-500" : ""}`}
                                 />
                             </div>
                         </div>
