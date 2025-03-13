@@ -72,13 +72,19 @@ const SpinWheel: React.FC = () => {
                 if (data.length <= 1) return;
 
                 let finalIndex: number;
-                if (cheatItemId !== null) {
-                    finalIndex = data.findIndex((item) => item.id === cheatItemId);
+                const firstPinnedActive = items.find(item => item.pinned && item.active);
+
+                if (cheatItemId !== null && cheatItemId === firstPinnedActive?.id) {
+                    finalIndex = data.findIndex(item => item.id === cheatItemId);
                     if (finalIndex === -1) {
                         finalIndex = Math.floor(Math.random() * data.length);
                     }
                 } else {
-                    finalIndex = Math.floor(Math.random() * data.length);
+                    if (firstPinnedActive) {
+                        finalIndex = data.findIndex(item => item.id === firstPinnedActive.id);
+                    } else {
+                        finalIndex = Math.floor(Math.random() * data.length);
+                    }
                 }
 
                 const totalSlices = data.length;
