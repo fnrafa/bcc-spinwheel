@@ -8,7 +8,7 @@ export function loadItems() {
         const fileData = fs.readFileSync(filePath, 'utf-8');
         return JSON.parse(fileData);
     }
-    return {title: "Final Pitching BCC 2025", items: []};
+    return {title: "BCC Spinwheel", items: []};
 }
 
 export function saveItems(title: string, items: any[]) {

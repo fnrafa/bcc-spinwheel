@@ -1,15 +1,16 @@
-"use client";
 import React, { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import Image from "next/image";
 import { useSpinContext } from "@/context/SpinContext";
 import { IoSend } from "react-icons/io5";
+import { motion } from "framer-motion";
 
 const SpinWheel: React.FC = () => {
     const chartRef = useRef<HTMLDivElement>(null);
     const spinFnRef = useRef<() => void>(() => {});
-    const { items, setItems, cheatItemId, removeAfterSelect } = useSpinContext();
-    const [selectedItem, setSelectedItem] = useState<string | null>(null);
+    const { items, setItems, cheatItemId } = useSpinContext();
+    const [selectedItemData, setSelectedItemData] = useState<{ id: number; label: string } | null>(null);
+    const [showModal, setShowModal] = useState(false);
 
     useEffect(() => {
         d3.select(chartRef.current).selectAll("*").remove();
@@ -69,6 +70,7 @@ const SpinWheel: React.FC = () => {
 
             spinFnRef.current = () => {
                 if (data.length <= 1) return;
+
                 let finalIndex: number;
                 if (cheatItemId !== null) {
                     finalIndex = data.findIndex((item) => item.id === cheatItemId);
@@ -87,41 +89,49 @@ const SpinWheel: React.FC = () => {
                 rotation = oldRotation + targetRotation;
 
                 vis.transition()
-                    .duration(4000)
+                    .duration(5000)
                     .attrTween("transform", function () {
                         const i = d3.interpolate(oldRotation, rotation);
                         return (t) => "rotate(" + i(t) + ")";
                     })
                     .each("end", function () {
-                        // Ganti warna slice yang terpilih
+                        const selected = data[finalIndex];
                         d3.select(`.slice:nth-child(${finalIndex + 1}) path`).attr("fill", "#008DD5");
-                        setSelectedItem(data[finalIndex].label);
+                        setSelectedItemData({ id: selected.id, label: selected.label });
+                        setShowModal(true);
+
                         oldRotation = rotation;
-                        // Update item: setelah dipilih, jadikan inactive dan hapus status pin (jika ada)
-                        setItems(prev =>
-                            prev.map(item => {
-                                if (item.id === data[finalIndex].id) {
-                                    return { ...item, active: false, pinned: false };
-                                }
-                                return item;
-                            })
-                        );
+
+                        setTimeout(() => {
+                            setShowModal(false);
+                            setItems(prev =>
+                                [...prev]
+                                    .map(item => ({
+                                        ...item,
+                                        active: item.id !== selected.id ? item.active : false,
+                                    }))
+                                    .sort((a, b) => {
+                                        if (a.pinned && a.active && !(b.pinned && b.active)) return -1;
+                                        if (b.pinned && b.active && !(a.pinned && a.active)) return 1;
+
+                                        if (a.active && !b.active) return -1;
+                                        if (b.active && !a.active) return 1;
+
+                                        return 0;
+                                    })
+                            );
+                        }, 5000); // Delay 5 detik sebelum update active
                     });
             };
         };
 
         updateSize();
-        window.addEventListener("resize", updateSize);
-
-        return () => {
-            window.removeEventListener("resize", updateSize);
-        };
-    }, [items, cheatItemId, removeAfterSelect, setItems]);
+    }, [items, cheatItemId, setItems]);
 
     return (
         <div className="relative flex flex-col items-center w-full z-10">
             <div className="text-xl font-semibold mb-4 h-8 text-white">
-                {selectedItem ? `${selectedItem} Chosen!` : ""}
+                {selectedItemData ? `${selectedItemData.label} Chosen!` : ""}
             </div>
             <div className="relative flex items-center justify-center w-full">
                 <div className="absolute top-[-1rem] flex items-center justify-center">
@@ -142,7 +152,7 @@ const SpinWheel: React.FC = () => {
                         onClick={() => spinFnRef.current()}
                         disabled={items.filter(item => item.active).length <= 1}
                         className={`w-full h-full md:px-16 rounded-full border-8 border-white bg-white flex items-center justify-center transition-transform duration-150 focus:outline-none 
-              ${items.filter(item => item.active).length <= 1 ? "opacity-50 cursor-not-allowed" : ""}`}
+                    ${items.filter(item => item.active).length <= 1 ? "opacity-50 cursor-not-allowed" : ""}`}
                         onMouseDown={(e) => (e.currentTarget as HTMLButtonElement).classList.add("scale-90")}
                         onMouseUp={(e) => (e.currentTarget as HTMLButtonElement).classList.remove("scale-90")}
                     >
@@ -156,6 +166,20 @@ const SpinWheel: React.FC = () => {
                     </button>
                 </div>
             </div>
+
+            {showModal && (
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+                >
+                    <div className="bg-white p-6 rounded-xl shadow-lg text-center">
+                        <h2 className="text-xl font-bold">{selectedItemData?.label} Chosen!</h2>
+                        <p className="text-gray-600">Menunggu 5 detik sebelum item dinonaktifkan...</p>
+                    </div>
+                </motion.div>
+            )}
         </div>
     );
 };

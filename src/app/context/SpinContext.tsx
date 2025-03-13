@@ -1,7 +1,14 @@
 "use client";
-import React, { createContext, useState, useContext, useEffect } from "react";
+import React, {
+    createContext,
+    useContext,
+    useState,
+    useEffect,
+    useRef
+} from "react";
+import { useAlert } from "@/context/AlertContext";
 
-interface WheelItem {
+export interface WheelItem {
     id: number;
     label: string;
     active: boolean;
@@ -18,15 +25,23 @@ interface SpinContextProps {
     removeAfterSelect: boolean;
     setRemoveAfterSelect: React.Dispatch<React.SetStateAction<boolean>>;
     saveChanges: () => Promise<void>;
+    unsavedChanges: boolean;
 }
 
 const SpinContext = createContext<SpinContextProps | undefined>(undefined);
 
-export const SpinContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const SpinContextProvider: React.FC<{ children: React.ReactNode }> = ({
+                                                                                 children
+                                                                             }) => {
     const [title, setTitle] = useState("Final Pitching BCC 2025");
     const [items, setItems] = useState<WheelItem[]>([]);
-    const [cheatItemId, setCheatItemId] = useState<number | null>(1);
+    const [cheatItemId, setCheatItemId] = useState<number | null>(null);
     const [removeAfterSelect, setRemoveAfterSelect] = useState<boolean>(false);
+    const [unsavedChanges, setUnsavedChanges] = useState<boolean>(false);
+    const { alert } = useAlert();
+
+    const isInitialRender = useRef(true);
+    const debounceTimer = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
         async function fetchItems() {
@@ -36,26 +51,46 @@ export const SpinContextProvider: React.FC<{ children: React.ReactNode }> = ({ c
                     const data = await res.json();
                     setTitle(data.title);
                     setItems(data.items);
+                    setUnsavedChanges(false);
                 }
-            } catch (error) {
-                console.error("Error loading items:", error);
+            } catch (error: any) {
+                alert(`Error loading items: ${error.message}`, "error");
             }
         }
         fetchItems().then();
-    }, []);
+    }, [alert]);
+
+    useEffect(() => {
+        if (isInitialRender.current) {
+            isInitialRender.current = false;
+            return;
+        }
+        if (debounceTimer.current) {
+            clearTimeout(debounceTimer.current);
+        }
+        debounceTimer.current = setTimeout(() => {
+            saveChanges().then();
+        }, 500);
+    }, [items, title]);
+
+    useEffect(() => {
+        setUnsavedChanges(true);
+    }, [title, items]);
 
     const saveChanges = async () => {
         try {
             const res = await fetch("/api/saveItems", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ title, items }),
+                body: JSON.stringify({ title, items })
             });
             if (!res.ok) {
-                console.error("Failed to save items");
+                alert("Failed to save items", "error");
+                return;
             }
-        } catch (error) {
-            console.error("Error saving items:", error);
+            setUnsavedChanges(false);
+        } catch (error: any) {
+            alert(`Error saving items: ${error.message}`, "error");
         }
     };
 
@@ -70,7 +105,8 @@ export const SpinContextProvider: React.FC<{ children: React.ReactNode }> = ({ c
                 setCheatItemId,
                 removeAfterSelect,
                 setRemoveAfterSelect,
-                saveChanges
+                saveChanges,
+                unsavedChanges
             }}
         >
             {children}
@@ -78,7 +114,7 @@ export const SpinContextProvider: React.FC<{ children: React.ReactNode }> = ({ c
     );
 };
 
-export const useSpinContext = () => {
+export const useSpinContext = (): SpinContextProps => {
     const context = useContext(SpinContext);
     if (!context) {
         throw new Error("useSpinContext must be used within SpinContextProvider");

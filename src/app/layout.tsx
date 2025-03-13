@@ -2,6 +2,7 @@ import "./styles/globals.css";
 import React from "react";
 import type {Metadata} from "next";
 import {SpinContextProvider} from "@/context/SpinContext";
+import {AlertProvider} from "@/context/AlertContext";
 
 export const metadata: Metadata = {
     title: "Spin the Wheel | BCC",
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
     openGraph: {
         title: "Spin the Wheel | BCC",
         description: "Basic Computing Community SpinWheel",
-        url: "https://spinwheel.fnrafa.my.id",
+        url: "https://spinwheel.techwork.store",
         type: "website",
         images: [
             {
@@ -36,9 +37,11 @@ export default function RootLayout({children}: { children: React.ReactNode }) {
     return (
         <html lang="en">
         <body>
-        <SpinContextProvider>
-            {children}
-        </SpinContextProvider>
+        <AlertProvider>
+            <SpinContextProvider>
+                {children}
+            </SpinContextProvider>
+        </AlertProvider>
         </body>
         </html>
     );

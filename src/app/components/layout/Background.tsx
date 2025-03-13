@@ -1,5 +1,5 @@
 "use client";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {motion} from "framer-motion";
 import {PiSparkleFill} from "react-icons/pi";
 
@@ -16,13 +16,17 @@ const getRandomPosition = () => ({
 });
 
 const Background: React.FC<LayoutProps> = ({children}) => {
-    const [stars] = useState(
-        Array.from({length: starCount}, (_, i) => ({
-            id: i,
-            position: getRandomPosition(),
-            delay: Math.random() * 2 * 3,
-        }))
-    );
+    const [stars, setStars] = useState<{ id: number; position: any; delay: number }[]>([]);
+
+    useEffect(() => {
+        setStars(
+            Array.from({length: starCount}, (_, i) => ({
+                id: i,
+                position: getRandomPosition(),
+                delay: Math.random() * 2 * 3,
+            }))
+        );
+    }, []);
 
     return (
         <div
