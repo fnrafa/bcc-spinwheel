@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 const SpinWheel: React.FC = () => {
     const chartRef = useRef<HTMLDivElement>(null);
     const spinFnRef = useRef<() => void>(() => {});
-    const { items, setItems, cheatItemId } = useSpinContext();
+    const { items, setItems, cheatItemId, setCheatItemId } = useSpinContext();
     const [selectedItemData, setSelectedItemData] = useState<{ id: number; label: string } | null>(null);
     const [showModal, setShowModal] = useState(false);
 
@@ -99,11 +99,14 @@ const SpinWheel: React.FC = () => {
                         d3.select(`.slice:nth-child(${finalIndex + 1}) path`).attr("fill", "#008DD5");
                         setSelectedItemData({ id: selected.id, label: selected.label });
                         setShowModal(true);
-
                         oldRotation = rotation;
-
                         setTimeout(() => {
                             setShowModal(false);
+
+                            const nextCheatItem = items
+                                .filter(item => item.pinned && item.active && item.id !== selected.id)[0];
+
+                            setCheatItemId(nextCheatItem ? nextCheatItem.id : null);
                             setItems(prev =>
                                 [...prev]
                                     .map(item => ({
@@ -120,7 +123,7 @@ const SpinWheel: React.FC = () => {
                                         return 0;
                                     })
                             );
-                        }, 5000); // Delay 5 detik sebelum update active
+                        }, 5000);
                     });
             };
         };
@@ -176,7 +179,6 @@ const SpinWheel: React.FC = () => {
                 >
                     <div className="bg-white p-6 rounded-xl shadow-lg text-center">
                         <h2 className="text-xl font-bold">{selectedItemData?.label} Chosen!</h2>
-                        <p className="text-gray-600">Menunggu 5 detik sebelum item dinonaktifkan...</p>
                     </div>
                 </motion.div>
             )}

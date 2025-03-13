@@ -2,36 +2,6 @@
   "title": "Trial Final Pitching BCC 2025",
   "items": [
     {
-      "id": 2,
-      "label": "Kelompok 2",
-      "active": true,
-      "pinned": false
-    },
-    {
-      "id": 14,
-      "label": "Kelompok 14",
-      "active": true,
-      "pinned": false
-    },
-    {
-      "id": 4,
-      "label": "Kelompok 4",
-      "active": true,
-      "pinned": false
-    },
-    {
-      "id": 11,
-      "label": "Kelompok 11",
-      "active": true,
-      "pinned": false
-    },
-    {
-      "id": 13,
-      "label": "Kelompok 13",
-      "active": true,
-      "pinned": false
-    },
-    {
       "id": 7,
       "label": "Kelompok 7",
       "active": true,
@@ -40,12 +10,6 @@
     {
       "id": 10,
       "label": "Kelompok 10",
-      "active": true,
-      "pinned": false
-    },
-    {
-      "id": 9,
-      "label": "Kelompok 9",
       "active": true,
       "pinned": false
     },
@@ -76,18 +40,54 @@
     {
       "id": 8,
       "label": "Kelompok 8",
-      "active": false,
+      "active": true,
       "pinned": false
     },
     {
       "id": 3,
       "label": "Kelompok 3",
-      "active": false,
+      "active": true,
       "pinned": false
     },
     {
       "id": 15,
       "label": "Kelompok 15",
+      "active": true,
+      "pinned": false
+    },
+    {
+      "id": 11,
+      "label": "Kelompok 11",
+      "active": false,
+      "pinned": true
+    },
+    {
+      "id": 4,
+      "label": "Kelompok 4",
+      "active": false,
+      "pinned": true
+    },
+    {
+      "id": 13,
+      "label": "Kelompok 13",
+      "active": false,
+      "pinned": true
+    },
+    {
+      "id": 14,
+      "label": "Kelompok 14",
+      "active": false,
+      "pinned": true
+    },
+    {
+      "id": 2,
+      "label": "Kelompok 2",
+      "active": false,
+      "pinned": false
+    },
+    {
+      "id": 9,
+      "label": "Kelompok 9",
       "active": false,
       "pinned": false
     }
