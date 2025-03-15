@@ -14,7 +14,6 @@ const SpinWheel: React.FC<{ type: "admin" | "user" }> = ({type}) => {
     const [selectedItemData, setSelectedItemData] = useState<{ id: number; label: string } | null>(null);
     const [showModal, setShowModal] = useState(false);
 
-
     useEffect(() => {
         d3.select(chartRef.current).selectAll("*").remove();
         const updateSize = () => {
@@ -83,7 +82,7 @@ const SpinWheel: React.FC<{ type: "admin" | "user" }> = ({type}) => {
                 rotation = oldRotation + targetRotation;
                 vis
                     .transition()
-                    .duration(5000)
+                    .duration(7000)
                     .attrTween("transform", function () {
                         const i = d3.interpolate(oldRotation, targetRotation);
                         return (t) => "rotate(" + i(t) + ")";
