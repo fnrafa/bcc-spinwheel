@@ -67,7 +67,7 @@ const AdminPage: React.FC = () => {
                     </div>
                     <div className="flex justify-center items-center w-full md:w-1/2">
                         <div className="w-[70vh]">
-                            <SpinWheel/>
+                            <SpinWheel type={"admin"}/>
                         </div>
                     </div>
                 </div>
