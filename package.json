@@ -7,15 +7,13 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "socket": "node server.js"
+    "lint": "next lint"
   },
   "dependencies": {
     "@dnd-kit/accessibility": "^3.1.1",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
-    "d3": "^3.5.17",
-    "d3-shape": "^3.2.0",
+    "d3": "^7.9.0",
     "framer-motion": "^12.0.0",
     "next": "15.1.4",
     "react": "^19.0.0",
@@ -24,10 +22,10 @@
     "ws": "^8.18.1"
   },
   "devDependencies": {
-    "@types/d3": "^7.4.3",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/d3": "^7.4.3",
     "@types/ws": "^8.18.0",
     "@typescript-eslint/eslint-plugin": "^8.20.0",
     "@typescript-eslint/parser": "^8.20.0",

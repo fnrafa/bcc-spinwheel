@@ -3,6 +3,7 @@ import React from "react";
 import type {Metadata} from "next";
 import {SpinContextProvider} from "@/context/SpinContext";
 import {AlertProvider} from "@/context/AlertContext";
+import PasswordGuard from "@/components/PasswordGuard";
 
 export const metadata: Metadata = {
     title: "Spin the Wheel | BCC",
@@ -38,9 +39,11 @@ export default function RootLayout({children}: { children: React.ReactNode }) {
         <html lang="en">
         <body>
         <AlertProvider>
-            <SpinContextProvider>
-                {children}
-            </SpinContextProvider>
+            <PasswordGuard>
+                <SpinContextProvider>
+                    {children}
+                </SpinContextProvider>
+            </PasswordGuard>
         </AlertProvider>
         </body>
         </html>

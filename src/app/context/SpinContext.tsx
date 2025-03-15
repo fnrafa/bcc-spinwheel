@@ -33,8 +33,24 @@ const SpinContext = createContext<SpinContextProps | undefined>(undefined);
 export const SpinContextProvider: React.FC<{ children: React.ReactNode }> = ({
                                                                                  children
                                                                              }) => {
-    const [title, setTitle] = useState("Final Pitching BCC 2025");
-    const [items, setItems] = useState<WheelItem[]>([]);
+    // Load items from localStorage initially
+    const getStoredItems = () => {
+        if (typeof window !== "undefined") {
+            const stored = localStorage.getItem("spinwheel_items");
+            return stored ? JSON.parse(stored) : [];
+        }
+        return [];
+    };
+
+    const getStoredTitle = () => {
+        if (typeof window !== "undefined") {
+            return localStorage.getItem("spinwheel_title") || "Final Pitching BCC 2025";
+        }
+        return "Final Pitching BCC 2025";
+    };
+
+    const [title, setTitle] = useState(getStoredTitle);
+    const [items, setItems] = useState<WheelItem[]>(getStoredItems);
     const [cheatItemId, setCheatItemId] = useState<number | null>(null);
     const [removeAfterSelect, setRemoveAfterSelect] = useState<boolean>(false);
     const [unsavedChanges, setUnsavedChanges] = useState<boolean>(false);
@@ -49,14 +65,19 @@ export const SpinContextProvider: React.FC<{ children: React.ReactNode }> = ({
                 const res = await fetch("/api/loadItems");
                 if (res.ok) {
                     const data = await res.json();
-                    setTitle(data.title);
-                    setItems(data.items);
+                    if (data.items.length > 0) {
+                        setItems(data.items); // ✅ Only update if data exists
+                        localStorage.setItem("spinwheel_items", JSON.stringify(data.items));
+                    }
+                    setTitle(data.title || "Final Pitching BCC 2025");
+                    localStorage.setItem("spinwheel_title", data.title || "Final Pitching BCC 2025");
                     setUnsavedChanges(false);
                 }
             } catch (error: any) {
                 alert(`Error loading items: ${error.message}`, "error");
             }
         }
+
         fetchItems().then();
     }, [alert]);
 
@@ -75,6 +96,8 @@ export const SpinContextProvider: React.FC<{ children: React.ReactNode }> = ({
 
     useEffect(() => {
         setUnsavedChanges(true);
+        localStorage.setItem("spinwheel_items", JSON.stringify(items));
+        localStorage.setItem("spinwheel_title", title);
     }, [title, items]);
 
     const saveChanges = async () => {

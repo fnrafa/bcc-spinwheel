@@ -9,6 +9,7 @@ const Header: React.FC = () => {
     const [history, setHistory] = useState<{ id: number; label: string; time: string }[]>([]);
     const [showModal, setShowModal] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [clearing, setClearing] = useState(false);
 
     const fetchHistory = async () => {
         setLoading(true);
@@ -28,12 +29,23 @@ const Header: React.FC = () => {
                     };
                 });
 
-                setHistory(formattedHistory); // No reverse() -> Shows oldest first
+                setHistory(formattedHistory);
             }
         } catch (error) {
             console.error("Failed to fetch history:", error);
         }
         setLoading(false);
+    };
+
+    const clearHistory = async () => {
+        setClearing(true);
+        try {
+            await fetch("/api/history", { method: "DELETE" });
+            setHistory([]);
+        } catch (error) {
+            console.error("Failed to clear history:", error);
+        }
+        setClearing(false);
     };
 
     return (
@@ -95,8 +107,13 @@ const Header: React.FC = () => {
                             <p className="text-gray-500 text-center">No history available.</p>
                         )}
 
-                        <div className="mt-4 flex justify-end">
-                            <Button text="Close"  onClick={() => setShowModal(false)} size="small" />
+                        <div className="mt-4 flex justify-between">
+                            <Button
+                                text={clearing ? "Clearing..." : "Clear History"}
+                                onClick={clearHistory}
+                                size="small"
+                            />
+                            <Button text="Close" onClick={() => setShowModal(false)} size="small" />
                         </div>
                     </div>
                 </motion.div>
